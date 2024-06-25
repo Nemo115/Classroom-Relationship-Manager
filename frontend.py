@@ -18,9 +18,10 @@ class App(ttk.Frame):
         super().__init__(master_window, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
         
-        default_label = ttk.Label(self, text="This is a default label", width = 50)
+        default_label = ttk.Label(self, text="This is a test label", width = 50)
         default_label.pack(fill=X, pady=10)
         
+        #Draw the Groupviewer
         self.group_viewer = GroupViewer(self)
 
 
@@ -37,6 +38,8 @@ class GroupViewer(ttk.Frame):
         
         self.create_notebook()
         self.add_notebook_tabs()
+
+        self.create_new_group_tab()
     
     def create_notebook(self):
         self.notebook = ttk.Notebook(self, bootstyle = "dark")
@@ -48,6 +51,10 @@ class GroupViewer(ttk.Frame):
 
         new_tab_2 = GroupTab(self, label_text="second tab text\ngroup 2")
         self.notebook.add(new_tab_2, text = "group 2")
+    
+    def create_new_group_tab(self):
+        new_group_tab = NewGroupTab(self)
+        self.notebook.add(new_group_tab, text="Create New Group")
 
 """
 This is the pages displayed for each tab in the group viewer.
@@ -82,9 +89,9 @@ class GroupTab(ttk.Frame):
     
     def create_table(self):
         headers = [
-            {"text": "Name"},
-            {"text": "Student ID", "stretch": False},
-            {"text": "Total Rating"}
+            {"text": "Name", "stretch": True},
+            {"text": "Student ID", "stretch": True},
+            {"text": "Total Rating", "stretch": True}
         ]
         table = Tableview(
             master=self,
@@ -98,3 +105,10 @@ class GroupTab(ttk.Frame):
 
         table.pack(fill=BOTH, expand=YES, padx=10, pady=10)
         return table
+
+class NewGroupTab(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        placeholder = ttk.Label(self, text="Create a new group here", width = 50)
+        placeholder.pack(fill=X, pady=10)
+        self.pack()
