@@ -1,0 +1,21 @@
+Python Libraries:
+
+ttkbootstrap
+gitpython
+
+
+use pip install
+
+
+Default Student Client Data:
+{
+    "ID": null,
+    "Name": null,
+    "Ratings":{
+    }
+}
+
+
+
+Tags:
+    Effort, Focus, Ideas, Contribution, Dedication, Collaboration, Enthusiasm

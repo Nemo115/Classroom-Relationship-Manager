@@ -23,7 +23,7 @@ class App(ttk.Frame):
 
         #Check whether student is logged in
         if logged_in:
-            pass
+            RatingPage(self)
         else:
             LoginScreen(self)
 
@@ -37,6 +37,7 @@ class LoginScreen(ttk.Frame):
         self.pack(fill=BOTH)
 
         self.student_id = ttk.StringVar(value="")
+        self.parent = parent
 
         default_label = ttk.Label(self, text="Login Screen", width = 50)
         default_label.pack(fill=X, pady=10)
@@ -51,13 +52,160 @@ class LoginScreen(ttk.Frame):
     
     def submit_id(self):
         student_id = self.student_id.get()
+        login_status = valid_student_id(student_id)
 
-        if not valid_student_id(student_id): #referring to backend to check student id
+        logged_in = login_status[0]
+        message = login_status[1]
+
+        if not logged_in: #referring to backend to check student id
             toast = ToastNotification(
                 title="Submission Error",
-                message="Must Enter a student ID",
+                message=message,
                 duration = 3000
             )
             toast.show_toast()
         else:
-            print(student_id)
+            print(f"Success {student_id}")
+            toast = ToastNotification(
+                title="Submission Success",
+                message=message,
+                duration = 3000
+            )
+            toast.show_toast()
+
+            #update the student id
+            copy_student(student_id)
+
+            #change the page
+            self.destroy()
+            RatingPage(self.parent)
+
+class RatingPage(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
+        self.pack(fill=BOTH, anchor=CENTER)
+
+        find_group_members(current_groups)
+        print(f"\n\ncurrent_groups = {current_groups}")
+
+        default_label = ttk.Label(self, text="Rating Page", width = 50)
+        default_label.pack(fill=X, pady=10)
+        
+        """
+        Label: How would you rate working with {INSERT NAME}
+        Frame: 
+            - Slider (1 to 5)
+            - 
+        Two buttons on the bottom, progress bar in middle to indicate index of group member: -[]--- (2/5)
+        """
+        self.current_peer_index = 0 #start on first peer in group
+        self.current_peer_message = ttk.StringVar(value=f"How would you rate working with {self.current_peer()['Name']} in {self.current_group()['GroupName']}")# Value is updated in self.update_current_message()
+
+        self.title = self.create_title()
+
+        #Draw the rating stuff for the current peer
+        self.peer_element = self.create_current_peer()
+
+        self.bottom_buttons = self.create_buttons()
+    
+    def create_current_peer(self):
+        peer_elem = RatePeerElement(self, self.current_peer(), self.current_group()['GroupQualities'])
+        return peer_elem
+
+    def next_peer(self):
+        if self.current_peer_index + 1 >= 0 and self.current_peer_index + 1 < len(current_groups):
+            self.current_peer_index += 1
+            self.refresh_elements()
+            print(f"next peer clicked: {self.current_peer_index} {self.current_peer_message.get()}")
+        
+    def previous_peer(self):
+        if self.current_peer_index - 1 >= 0 and self.current_peer_index - 1 < len(current_groups):
+            self.current_peer_index -= 1
+            self.refresh_elements()
+            print(f"prior peer clicked: {self.current_peer_index} {self.current_peer_message.get()}")
+    
+    def refresh_elements(self):
+        self.update_current_message()
+        self.peer_element.destroy()
+        self.peer_element = self.create_current_peer()
+        self.bottom_buttons.destroy()
+        self.bottom_buttons = self.create_buttons()
+
+
+    def current_peer(self):
+        return get_student(current_groups[self.current_peer_index][1])
+
+    def current_group(self):
+        return get_group(current_groups[self.current_peer_index][0])
+
+    def update_current_message(self):# Updates the title text
+        self.current_peer_message.set(f"How would you rate working with {self.current_peer()['Name']} in {self.current_group()['GroupName']}")
+
+    def create_title(self):
+        title = ttk.Label(self, textvariable=self.current_peer_message, width=50)
+        title.pack(padx=10, pady=10, anchor=CENTER, fill = X)
+        return title
+        
+    def create_group_index_slider(self):
+        pass
+    
+    def create_buttons(self):
+        container = ttk.Frame(self)
+        container.pack(fill=X, expand=YES, pady=20)
+        
+        previous_peer_btn = ttk.Button(
+            master = container,
+            text="Previous Peer",
+            command = self.previous_peer,
+            bootstyle=INFO,
+            width=15
+        )
+        previous_peer_btn.pack(side=LEFT, padx=5)
+        
+        next_peer_btn=ttk.Button(
+            master = container,
+            text="Next Peer",
+            command = self.next_peer,
+            bootstyle=INFO,
+            width=15
+        )
+        next_peer_btn.pack(side=RIGHT, padx=5)
+
+        return container
+
+class RatePeerElement(ttk.Frame):
+    def __init__(self, parent, student, qualities):
+        super().__init__(parent)
+        self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
+        self.pack(fill=BOTH, anchor=CENTER)
+
+        default_label = ttk.Label(self, text="Rating Page", width = 50)
+        default_label.pack(fill=X, pady=10)
+
+        self.first_quality_rating = ttk.IntVar(value = 5)
+        self.second_quality_rating = ttk.IntVar(value = 5)
+        self.third_quality_rating = ttk.IntVar(value = 5)
+
+        self.create_quality_rating(qualities[0], self.first_quality_rating)
+        self.create_quality_rating(qualities[1], self.second_quality_rating)
+        self.create_quality_rating(qualities[2], self.third_quality_rating)
+
+
+        """
+        Contains:
+            - 3 bars for each group quality
+            - Label next to each bar for the group quality name
+        """
+
+    def create_quality_rating(self, quality, rating_var):
+        container = ttk.Frame(self)
+        container.pack(fill=X, expand=YES, pady=20)
+
+        label = ttk.Label(master=container, text=quality, width=15)
+        label.pack(side=LEFT, padx = 12)
+
+        slider = ttk.Scale(master=container, from_= 0, to=10, variable=rating_var)
+        slider.pack(side=RIGHT, fill=X, padx=15, expand=YES)
+        
+
