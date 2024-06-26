@@ -1,0 +1,12 @@
+{
+    "Groups":[
+        {
+            "GroupName": "group1",
+            "Members": [0,1,2,3]
+        },
+        {
+            "GroupName": "group2",
+            "Members": [0,2,5,8,9,11]
+        }
+    ]
+}

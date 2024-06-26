@@ -1,0 +1,58 @@
+{
+    "students":[
+        {
+            "ID": 0,
+            "Name": "John Doe",
+            "Ratings":{
+                "1": {
+                    "rating": 3,
+                    "tags":["Leader", "Focused", "Etc"]
+                },
+                "2": {
+                    "rating": 3,
+                    "tags":["Lazy", "Distracted", "Uncooperative"]
+                },
+                "3": {
+                    "rating": 5,
+                    "tags":["Leader", "Focused", "Etc"]
+                }
+            }
+        },
+        {
+            "ID": 1,
+            "Name": "Robert Redford",
+            "Ratings":{
+                "0": {
+                    "rating": 3,
+                    "tags":["Leader", "Focused", "Etc"]
+                },
+                "2": {
+                    "rating": 3,
+                    "tags":["Lazy", "Distracted", "Uncooperative"]
+                },
+                "3": {
+                    "rating": 5,
+                    "tags":["Leader", "Focused", "Etc"]
+                }
+            }
+        },
+        {
+            "ID": 2,
+            "Name": "Robert Redford",
+            "Ratings":{
+                "0": {
+                    "rating": 3,
+                    "tags":["Leader", "Focused", "Etc"]
+                },
+                "1": {
+                    "rating": 3,
+                    "tags":["Lazy", "Distracted", "Uncooperative"]
+                },
+                "3": {
+                    "rating": 5,
+                    "tags":["Leader", "Focused", "Etc"]
+                }
+            }
+        }
+    ]
+}
