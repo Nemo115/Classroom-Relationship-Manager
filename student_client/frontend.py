@@ -23,7 +23,7 @@ class App(ttk.Frame):
 
         #Check whether student is logged in
         if logged_in:
-            RatingPage(self)
+            RatingPage(self, master_window)
         else:
             LoginScreen(self)
 
@@ -81,7 +81,7 @@ class LoginScreen(ttk.Frame):
             RatingPage(self.parent)
 
 class RatingPage(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, root):
         super().__init__(parent)
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
         self.pack(fill=BOTH, anchor=CENTER)
@@ -90,7 +90,7 @@ class RatingPage(ttk.Frame):
         set_ratings()
         print(f"\n\ncurrent_peers = {current_peers}")
 
-
+        self.root = root
         default_label = ttk.Label(self, text="Rating Page", width = 50)
         default_label.pack(fill=X, pady=10)
         
@@ -121,12 +121,20 @@ class RatingPage(ttk.Frame):
             self.refresh_elements()
             print(f"next peer clicked: {self.current_peer_index} {self.current_peer_message.get()}")
         
+        if self.current_peer_index == len(current_peers) - 1:#On Last Page
+            self.bottom_buttons.destroy()
+            self.bottom_buttons = self.create_last_page_bottom()
+        
     def previous_peer(self):
         if self.current_peer_index - 1 >= 0 and self.current_peer_index - 1 < len(current_peers):
             self.current_peer_index -= 1
             self.refresh_elements()
             print(f"prior peer clicked: {self.current_peer_index} {self.current_peer_message.get()}")
-    
+        
+        #if self.current_peer_index == len(current_peers) - 2:#Exited Last Page
+        #    self.bottom_buttons.destroy()
+        #    self.bottom_buttons = self.create_buttons()
+
     def refresh_elements(self):
         self.update_current_message()
         self.peer_element.update_current_ratings()
@@ -176,15 +184,61 @@ class RatingPage(ttk.Frame):
         next_peer_btn.pack(side=RIGHT, padx=5)
 
         return container
+    def create_last_page_bottom(self):
+        container = ttk.Frame(self)
+        container.pack(fill=X, expand=YES, pady=20)
+        
+        previous_peer_btn = ttk.Button(
+            master = container,
+            text="Previous Peer",
+            command = self.previous_peer,
+            bootstyle=INFO,
+            width=15
+        )
+        previous_peer_btn.pack(side=LEFT, padx=5)
+        
+        submit_btn=ttk.Button(
+            master = container,
+            text="Submit",
+            command = self.submit_ratings,
+            bootstyle=SUCCESS,
+            width=15
+        )
+        submit_btn.pack(side=RIGHT, padx=5)
+
+        return container
+    def create_exit_button(self):
+        container = ttk.Frame(self)
+        container.pack(fill=X, expand=YES, pady=20)
+        
+        exit_btn = ttk.Button(
+            master = container,
+            text="Exit",
+            command = self.root.destroy,
+            bootstyle=DANGER,
+            width=15
+        )
+        exit_btn.pack(side=BOTTOM, padx=5)
+        return container
+    
+    def submit_ratings(self):
+        upload_ratings()
+        toast = ToastNotification(
+            title="Ratings Submitted!",
+            message="Your ratings have been uploaded!",
+            duration = 3000
+        )
+        toast.show_toast()
+        self.bottom_buttons.destroy()
+        self.peer_element.destroy()
+        self.bottom_buttons = self.create_exit_button()
+        self.peer_element = RatingFinished(self)
 
 class RatePeerElement(ttk.Frame):
     def __init__(self, parent, student, group):
         super().__init__(parent)
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
         self.pack(fill=BOTH, anchor=CENTER)
-
-        default_label = ttk.Label(self, text="Rating Page", width = 50)
-        default_label.pack(fill=X, pady=10)
 
         #Need to get these values from backend.current_ratings
         self.first_quality_rating = ttk.IntVar()
@@ -209,9 +263,8 @@ class RatePeerElement(ttk.Frame):
 
     def update_current_ratings(self):
         """
-        current_ratings from backend
+        setting values for current_ratings from backend
         """
-
         current_ratings[self.group['GroupID']][self.id][self.qualities[0]] = self.first_quality_rating.get()
         current_ratings[self.group['GroupID']][self.id][self.qualities[1]] = self.second_quality_rating.get()
         current_ratings[self.group['GroupID']][self.id][self.qualities[2]] = self.third_quality_rating.get()
@@ -231,5 +284,12 @@ class RatePeerElement(ttk.Frame):
         slider = ttk.Scale(master=container, from_= 0, to=10, variable=rating_var)
         slider.pack(side=RIGHT, fill=X, padx=15, expand=YES)
     
+class RatingFinished(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
+        self.pack(fill=BOTH, anchor=CENTER)
 
+        default_label = ttk.Label(self, text="Ratings have been uploaded!\nThank you!", width = 50)
+        default_label.pack(fill=X, pady=10)
 

@@ -103,4 +103,28 @@ def set_ratings():#reads all the groups and members, and generates default value
                             rating_dict[group][peer[1]][quality] = 5
     current_ratings.update(rating_dict)
     print(f"current_ratings = {current_ratings}")#{'0': {'1': {'Effort': 0, 'Focus': 0, 'Ideas': 0}, '2': {'Effort': 0, 'Focus': 0, 'Ideas': 0}, '3': {'Effort': 0, 'Focus': 0, 'Ideas': 0}}, '1': {'2': {'Effort': 0, 'Dedication': 0, 'Collaboration': 0}, '1': {'Effort': 0, 'Dedication': 0, 'Collaboration': 0}}}
+
+def upload_ratings():
+    """
+    Dump JSON
+    Student Data = {'ID': '0', 'Name': 'John Doe', 'Ratings': {'0': {'1': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '2': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '3': {'Effort': 4, 'Focus': 2, 'Ideas': 1}}, '1': {'1': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}, '2': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}}}}
+    """
+    student_data['Ratings'] = current_ratings
+    with open('student_client/data/student_data.json', 'w') as f:
+        json.dump(student_data, f)
+    print(student_data)
+
+    student_index = 0
+    for student in student_database:
+        if student['ID'] == student['ID']:
+            student_database[student_index] = student_data
+            break
+    students_json = {"students":student_database}
+    with open('student_client/data/StartHack-2024-PROTOTYPE_SERVER/students.json', 'w') as f:
+        json.dump(students_json, f)
     
+    #upload to git server
+    repo.git.add(update=True)
+    repo.index.commit(f"new commit by {student_data['Name']}")
+    origin = repo.remote(name='origin')
+    origin.push()
