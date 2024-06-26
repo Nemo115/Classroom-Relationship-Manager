@@ -39,7 +39,9 @@ with open("student_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r'
     print(student_groups)
 
 current_groups = [] # every group the student is in
-current_ratings = {} # ratings to be dumped to json. Format: {"1": {"Effort": 4, "Focus": 2, "Ideas": 1}, "2": {"Effort": 4, "Focus": 2, "Ideas": 1}, "3": {"Effort": 4, "Focus": 2, "Ideas": 1}}
+current_group_qualities = []
+current_peers = [] #every peer the student must rate and their corresponding groups
+current_ratings = {} # ratings to be dumped to json. Format: {'0': {'Ratings': {'1': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '2': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '3': {'Effort': 4, 'Focus': 2, 'Ideas': 1}}, '2': {'Ratings': {'1': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}, '2': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}}}}}}, {'ID': '2', 'Name': 'Lucy Kent', 'Groups': {'0': {'Ratings': {'1': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '2': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '3': {'Effort': 4, 'Focus': 2, 'Ideas': 1}}, '2': {'Ratings': {'1': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}, '2': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}}}}}}, {'ID': '3', 'Name': 'Luke Belfort', 'Groups': {'0': {'Ratings': {'1': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '2': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '3': {'Effort': 4, 'Focus': 2, 'Ideas': 1}}, '2': {'Ratings': {'1': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}, '2': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}}
 
 def valid_student_id(student_id):
     if not student_id:
@@ -73,14 +75,32 @@ def get_group(group_id):
         if group['GroupID'] == group_id:
             return group
 
-def find_group_members(current_groups):
+def find_group_members(current_peers, current_groups, current_group_qualities):
     #Find the group the student is in
     for group in student_groups:
         if student_data['ID'] in group['Members']:
+            current_groups.append(group['GroupID'])
+            current_group_qualities.append((group['GroupID'], group['GroupQualities']))
             for member in group['Members']:#add each member to the group list except for self
                 if member != student_data['ID']:
-                    current_groups.append((group['GroupID'], member))
+                    current_peers.append((group['GroupID'], member))
     
 def group_qualities(group):
     #group is the indexed group
     return student_groups[group]['GroupQualities']
+
+def set_ratings():#reads all the groups and members, and generates default values for ratings
+    #cant believe this shit works lmao, my brain hurts so much
+    rating_dict = {}#{'0': {'1': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '2': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '3': {'Effort': 4, 'Focus': 2, 'Ideas': 1}}, '1': {'1': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}, '2': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}}}}, {'ID': '1', 'Name': 'Robert Redford', 'Ratings': {'0': {'1': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '2': {'Effort': 4, 'Focus': 2, 'Ideas': 1}, '3': {'Effort': 4, 'Focus': 2, 'Ideas': 1}}, '2': {'1': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}, '2': {'Effort': 2, 'Dedication': 2, 'Collaboration': 2}}
+    for group in current_groups:
+        rating_dict[group] = {}#{'0':{}}
+        for peer in current_peers:
+            if group == peer[0]:
+                rating_dict[group][peer[1]] = {}
+                for qualities in current_group_qualities:
+                    if qualities[0] == group:
+                        for quality in qualities[1]:
+                            rating_dict[group][peer[1]][quality] = 5
+    current_ratings.update(rating_dict)
+    print(f"current_ratings = {current_ratings}")#{'0': {'1': {'Effort': 0, 'Focus': 0, 'Ideas': 0}, '2': {'Effort': 0, 'Focus': 0, 'Ideas': 0}, '3': {'Effort': 0, 'Focus': 0, 'Ideas': 0}}, '1': {'2': {'Effort': 0, 'Dedication': 0, 'Collaboration': 0}, '1': {'Effort': 0, 'Dedication': 0, 'Collaboration': 0}}}
+    

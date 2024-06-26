@@ -86,8 +86,10 @@ class RatingPage(ttk.Frame):
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
         self.pack(fill=BOTH, anchor=CENTER)
 
-        find_group_members(current_groups)
-        print(f"\n\ncurrent_groups = {current_groups}")
+        find_group_members(current_peers, current_groups, current_group_qualities)
+        set_ratings()
+        print(f"\n\ncurrent_peers = {current_peers}")
+
 
         default_label = ttk.Label(self, text="Rating Page", width = 50)
         default_label.pack(fill=X, pady=10)
@@ -110,23 +112,24 @@ class RatingPage(ttk.Frame):
         self.bottom_buttons = self.create_buttons()
     
     def create_current_peer(self):
-        peer_elem = RatePeerElement(self, self.current_peer(), self.current_group()['GroupQualities'])
+        peer_elem = RatePeerElement(self, self.current_peer(), self.current_group())
         return peer_elem
 
     def next_peer(self):
-        if self.current_peer_index + 1 >= 0 and self.current_peer_index + 1 < len(current_groups):
+        if self.current_peer_index + 1 >= 0 and self.current_peer_index + 1 < len(current_peers):
             self.current_peer_index += 1
             self.refresh_elements()
             print(f"next peer clicked: {self.current_peer_index} {self.current_peer_message.get()}")
         
     def previous_peer(self):
-        if self.current_peer_index - 1 >= 0 and self.current_peer_index - 1 < len(current_groups):
+        if self.current_peer_index - 1 >= 0 and self.current_peer_index - 1 < len(current_peers):
             self.current_peer_index -= 1
             self.refresh_elements()
             print(f"prior peer clicked: {self.current_peer_index} {self.current_peer_message.get()}")
     
     def refresh_elements(self):
         self.update_current_message()
+        self.peer_element.update_current_ratings()
         self.peer_element.destroy()
         self.peer_element = self.create_current_peer()
         self.bottom_buttons.destroy()
@@ -134,10 +137,10 @@ class RatingPage(ttk.Frame):
 
 
     def current_peer(self):
-        return get_student(current_groups[self.current_peer_index][1])
+        return get_student(current_peers[self.current_peer_index][1])
 
     def current_group(self):
-        return get_group(current_groups[self.current_peer_index][0])
+        return get_group(current_peers[self.current_peer_index][0])
 
     def update_current_message(self):# Updates the title text
         self.current_peer_message.set(f"How would you rate working with {self.current_peer()['Name']} in {self.current_group()['GroupName']}")
@@ -175,7 +178,7 @@ class RatingPage(ttk.Frame):
         return container
 
 class RatePeerElement(ttk.Frame):
-    def __init__(self, parent, student, qualities):
+    def __init__(self, parent, student, group):
         super().__init__(parent)
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
         self.pack(fill=BOTH, anchor=CENTER)
@@ -184,19 +187,20 @@ class RatePeerElement(ttk.Frame):
         default_label.pack(fill=X, pady=10)
 
         #Need to get these values from backend.current_ratings
-        self.first_quality_rating = ttk.IntVar(value = 5)
-        self.second_quality_rating = ttk.IntVar(value = 5)
-        self.third_quality_rating = ttk.IntVar(value = 5)
+        self.first_quality_rating = ttk.IntVar()
+        self.second_quality_rating = ttk.IntVar()
+        self.third_quality_rating = ttk.IntVar()
 
         self.student = student
-        self.qualities = qualities
-        self.id = student.id
+        self.group = group
+        self.qualities = group['GroupQualities']
+        self.id = student['ID']
 
-        self.create_quality_rating_form(qualities[0], self.first_quality_rating)
-        self.create_quality_rating_form(qualities[1], self.second_quality_rating)
-        self.create_quality_rating_form(qualities[2], self.third_quality_rating)
+        self.create_quality_rating_form(self.qualities[0], self.first_quality_rating)
+        self.create_quality_rating_form(self.qualities[1], self.second_quality_rating)
+        self.create_quality_rating_form(self.qualities[2], self.third_quality_rating)
 
-
+        self.get_current_ratings()
         """
         Contains:
             - 3 bars for each group quality
@@ -207,15 +211,15 @@ class RatePeerElement(ttk.Frame):
         """
         current_ratings from backend
         """
-        
-        current_ratings[self.id][self.qualities[0]] = self.first_quality_rating.get()
-        current_ratings[self.id][self.qualities[1]] = self.second_quality_rating.get()
-        current_ratings[self.id][self.qualities[2]] = self.third_quality_rating.get()
 
-    def get_current_ratings(self):
-        self.first_quality_rating = current_ratings[self.qualities[0]]
-        self.second_quality_rating = current_ratings[self.qualities[1]]
-        self.third_quality_rating = current_ratings[self.qualities[2]]
+        current_ratings[self.group['GroupID']][self.id][self.qualities[0]] = self.first_quality_rating.get()
+        current_ratings[self.group['GroupID']][self.id][self.qualities[1]] = self.second_quality_rating.get()
+        current_ratings[self.group['GroupID']][self.id][self.qualities[2]] = self.third_quality_rating.get()
+
+    def get_current_ratings(self):#{'0': {'1': {'Effort': 0, 'Focus': 0, 'Ideas': 0}, '2': {'Effort': 0, 'Focus': 0, 'Ideas': 0}, '3': {'Effort': 0, 'Focus': 0, 'Ideas': 0}}, '1': {'2': {'Effort': 0, 'Dedication': 0, 'Collaboration': 0}, '1': {'Effort': 0, 'Dedication': 0, 'Collaboration': 0}}}
+        self.first_quality_rating.set(current_ratings[self.group['GroupID']][self.id][self.qualities[0]])
+        self.second_quality_rating.set(current_ratings[self.group['GroupID']][self.id][self.qualities[1]])
+        self.third_quality_rating.set(current_ratings[self.group['GroupID']][self.id][self.qualities[2]])
 
     def create_quality_rating_form(self, quality, rating_var):
         container = ttk.Frame(self)
