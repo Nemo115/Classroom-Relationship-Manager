@@ -183,13 +183,18 @@ class RatePeerElement(ttk.Frame):
         default_label = ttk.Label(self, text="Rating Page", width = 50)
         default_label.pack(fill=X, pady=10)
 
+        #Need to get these values from backend.current_ratings
         self.first_quality_rating = ttk.IntVar(value = 5)
         self.second_quality_rating = ttk.IntVar(value = 5)
         self.third_quality_rating = ttk.IntVar(value = 5)
 
-        self.create_quality_rating(qualities[0], self.first_quality_rating)
-        self.create_quality_rating(qualities[1], self.second_quality_rating)
-        self.create_quality_rating(qualities[2], self.third_quality_rating)
+        self.student = student
+        self.qualities = qualities
+        self.id = student.id
+
+        self.create_quality_rating_form(qualities[0], self.first_quality_rating)
+        self.create_quality_rating_form(qualities[1], self.second_quality_rating)
+        self.create_quality_rating_form(qualities[2], self.third_quality_rating)
 
 
         """
@@ -198,7 +203,21 @@ class RatePeerElement(ttk.Frame):
             - Label next to each bar for the group quality name
         """
 
-    def create_quality_rating(self, quality, rating_var):
+    def update_current_ratings(self):
+        """
+        current_ratings from backend
+        """
+        
+        current_ratings[self.id][self.qualities[0]] = self.first_quality_rating.get()
+        current_ratings[self.id][self.qualities[1]] = self.second_quality_rating.get()
+        current_ratings[self.id][self.qualities[2]] = self.third_quality_rating.get()
+
+    def get_current_ratings(self):
+        self.first_quality_rating = current_ratings[self.qualities[0]]
+        self.second_quality_rating = current_ratings[self.qualities[1]]
+        self.third_quality_rating = current_ratings[self.qualities[2]]
+
+    def create_quality_rating_form(self, quality, rating_var):
         container = ttk.Frame(self)
         container.pack(fill=X, expand=YES, pady=20)
 
@@ -207,5 +226,6 @@ class RatePeerElement(ttk.Frame):
 
         slider = ttk.Scale(master=container, from_= 0, to=10, variable=rating_var)
         slider.pack(side=RIGHT, fill=X, padx=15, expand=YES)
-        
+    
+
 

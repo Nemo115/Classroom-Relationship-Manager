@@ -39,6 +39,7 @@ with open("student_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r'
     print(student_groups)
 
 current_groups = [] # every group the student is in
+current_ratings = {} # ratings to be dumped to json. Format: {"1": {"Effort": 4, "Focus": 2, "Ideas": 1}, "2": {"Effort": 4, "Focus": 2, "Ideas": 1}, "3": {"Effort": 4, "Focus": 2, "Ideas": 1}}
 
 def valid_student_id(student_id):
     if not student_id:
@@ -56,7 +57,8 @@ def valid_student_id(student_id):
 def copy_student(student_id):
     for student in student_database:
         if student['ID'] == student_id:
-            student_data = student
+            student_data.clear()
+            student_data.update(student)
     #pass values to student_data from student_id
     with open('student_client/data/student_data.json', 'w') as f:
         json.dump(student_data, f)
