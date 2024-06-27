@@ -2,6 +2,7 @@ from frontend import *
 
 """
 Run the application here.
+test commit by lachie
 """
 
 window_size = (1200, 1000)
