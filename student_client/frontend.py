@@ -25,19 +25,20 @@ class App(ttk.Frame):
         if logged_in:
             RatingPage(self, master_window)
         else:
-            LoginScreen(self)
+            LoginScreen(self, master_window)
 
 """
 This will display if user is not logged in (based on backend)
 """
 class LoginScreen(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, root):
         super().__init__(parent)
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
         self.pack(fill=BOTH)
 
         self.student_id = ttk.StringVar(value="")
         self.parent = parent
+        self.root = root
 
         default_label = ttk.Label(self, text="Login Screen", width = 50)
         default_label.pack(fill=X, pady=10)
@@ -78,7 +79,7 @@ class LoginScreen(ttk.Frame):
 
             #change the page
             self.destroy()
-            RatingPage(self.parent)
+            RatingPage(self.parent, self.root)
 
 class RatingPage(ttk.Frame):
     def __init__(self, parent, root):

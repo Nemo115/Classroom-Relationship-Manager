@@ -1,1 +1,1 @@
-{"ID": "0", "Name": "John Doe", "Ratings": {"0": {"1": {"Effort": 5, "Focus": 5, "Ideas": 5}, "2": {"Effort": 5, "Focus": 5, "Ideas": 5}, "3": {"Effort": 5, "Focus": 5, "Ideas": 5}}, "1": {"2": {"Effort": 5, "Dedication": 5, "Collaboration": 5}, "1": {"Effort": 5, "Dedication": 5, "Collaboration": 5}}}}
+{"ID": "0", "Name": "John Doe", "Ratings": {"Teamwork": [1, 2, 3], "Leader": [1, 2, 3], "Ideas": [1, 2, 3], "Collaboration": [1, 2, 3]}}
