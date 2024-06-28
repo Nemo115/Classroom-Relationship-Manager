@@ -26,8 +26,6 @@ logged_in = True if student_data['ID'] != None else False
 repo = git.Repo("student_client/data/StartHack-2024-PROTOTYPE_SERVER")
 repo.git.fetch()
 repo.git.reset('--hard', 'origin/main')
-#repo.git.merge('origin/main')
-#repo.git.pull()
 
 #Get all students
 with open("student_client/data/StartHack-2024-PROTOTYPE_SERVER/students.json", 'r') as f:
@@ -50,7 +48,6 @@ def valid_student_id(student_id):
     if not student_id:
         return (False, "Must input a Student ID")
     #run id through the database of all students and check if it exists
-    
     if student_id in student_database:
         return (True, "Success: You are now Logged In!")            
     
@@ -134,21 +131,6 @@ def upload_ratings():
                     student_database[peer]['Ratings'][quality].append(rating)
                 else:# if not, add the quality to their ratings
                     student_database[peer]['Ratings'][quality] = [rating]
-
-
-    '''
-    student_data['Ratings'] = current_ratings
-    with open('student_client/data/student_data.json', 'w') as f:
-        json.dump(student_data, f)
-    print(student_data)
-    '''
-    """
-    student_index = 0
-    for student in student_database:
-        if student['ID'] == student['ID']:
-            student_database[student_index] = student_data
-            break
-    """
     
     students_json = {"students":student_database}
     with open('student_client/data/StartHack-2024-PROTOTYPE_SERVER/students.json', 'w') as f:
@@ -157,7 +139,6 @@ def upload_ratings():
             json.dumps(students_json, indent=4, sort_keys=True)
         )
     #upload to git server
-
     repo.git.add(update=True)
     repo.index.commit(f"new commit by {student_data['Name']}")
     origin = repo.remote(name='origin')
