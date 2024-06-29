@@ -5,7 +5,7 @@ Run the application here.
 test commit by lachie
 """
 
-window_size = (1200, 1000)
+window_size = (1400, 1000)
 
 if __name__ == "__main__":
     app = ttk.Window("Student Relationship Manager", "darkly", resizable = (True, True))

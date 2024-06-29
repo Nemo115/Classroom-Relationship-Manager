@@ -57,7 +57,6 @@ def valid_student_id(student_id):
 def copy_student(student_id):
     if student_id in student_database:
         student_data.clear()
-        student_data['ID'] = student_id
         student_data.update(student_database[student_id])
     #pass values to student_data from student_id
     with open('student_client/data/student_data.json', 'w') as f:
@@ -132,11 +131,10 @@ def upload_ratings():
                 else:# if not, add the quality to their ratings
                     student_database[peer]['Ratings'][quality] = [rating]
     
-    students_json = {"students":student_database}
     with open('student_client/data/StartHack-2024-PROTOTYPE_SERVER/students.json', 'w') as f:
         #json.dump(students_json, f)
         f.write(
-            json.dumps(students_json, indent=4, sort_keys=True)
+            json.dumps(student_database, indent=4, sort_keys=True)
         )
     #upload to git server
     repo.git.add(update=True)

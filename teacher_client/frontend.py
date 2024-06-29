@@ -15,15 +15,79 @@ All visual objects will be initialized here.
 """
 class App(ttk.Frame):
     def __init__(self, master_window):
-        super().__init__(master_window, padding=(20, 10))
+        super().__init__(master_window, padding=(0, 10))
         self.pack(fill=BOTH, expand=YES)
-        
-        default_label = ttk.Label(self, text="This is a test label", width = 50)
-        default_label.pack(fill=X, pady=10)
-        
-        #Draw the Groupviewer
-        self.group_viewer = GroupViewer(self)
+        self.root = master_window
+        #default_label = ttk.Label(self, text="This is a test label", width = 50)
+        #default_label.pack(fill=X, pady=10)
 
+        self.side_menu_x = 0
+        self.side_menu_active = True
+
+        self.main_view_x = 300
+
+        #Draw the Groupviewer
+        self.navigation_bar = self.create_navigation_bar()
+        self.main_view = self.create_main_view()
+
+
+    def create_main_view(self):
+        container = ttk.Frame(self, padding=(20,0))
+        container.place(x=self.main_view_x, y=60, relwidth=1-self.get_width_percentage()-.1)#PUT THE CALCULATED WIDTH PERCENTAGE
+        GroupViewer(container)
+
+        return container
+
+    def create_navigation_bar(self):
+        top_container = ttk.Frame(self)
+        top_container.pack(fill=X, side=TOP)
+        toggle_button = ttk.Button(
+                master = top_container,
+                text="Classes Menu",
+                command = self.toggle_side_menu,
+                bootstyle=INFO,
+                width=15
+            )
+        toggle_button.pack(side=LEFT, padx=5, pady=10)
+
+        side_container = ttk.Frame(self, width=300) #This will push the group viewer to the right side when side_bar_panel is active
+        side_container.pack(fill=Y, side=LEFT)
+
+        side_bar_panel = ttk.Frame(self, bootstyle = 'secondary')
+        side_bar_panel.place(x=self.side_menu_x, y=60, relheight=1, width=300)
+
+        return {"menu":side_bar_panel, "container":side_container}# we must edit both the values of the menu and the container for popping in and out
+    
+    def toggle_side_menu(self):
+        self.side_menu_active = not self.side_menu_active
+        if self.side_menu_active:
+            #move group viewer
+            self.side_bar_enter()
+        else:
+            #move group viewer
+            self.side_bar_exit()
+    
+    #Side bar pops in, and main view adjusts
+    def side_bar_enter(self):
+        self.side_menu_x += 20
+        self.main_view_x += 20
+        if self.side_menu_x <= 0 and self.main_view_x <= 300:
+            self.navigation_bar['menu'].place(x=self.side_menu_x)
+            self.main_view.place(x=self.main_view_x)
+            self.root.after(10, self.side_bar_enter)
+
+    #Side bar pops out, and main view expands
+    def side_bar_exit(self):
+        self.side_menu_x -= 20
+        self.main_view_x -= 20
+        if self.side_menu_x >= -300:
+            self.navigation_bar['menu'].place(x=self.side_menu_x)
+            self.main_view.place(x=self.main_view_x)
+            self.root.after(10, self.side_bar_exit)
+
+    def get_width_percentage(self):
+        width = self.root.winfo_screenwidth()
+        return 300/width
 
 """
 This is the group viewer.
@@ -33,9 +97,9 @@ Includes:
 class GroupViewer(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
-        self.pack(fill=BOTH)
-        
+        #self.place(relx=0.2, rely=0.2, relwidth=.8, relheight=1)
+        self.pack(fill=BOTH, expand=YES)
+
         self.create_notebook()
         self.add_notebook_tabs()
 
