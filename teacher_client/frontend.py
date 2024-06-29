@@ -56,6 +56,9 @@ class App(ttk.Frame):
         side_bar_panel = ttk.Frame(self, bootstyle = 'secondary')
         side_bar_panel.place(x=self.side_menu_x, y=60, relheight=1, width=300)
 
+        temp_text = ttk.Label(side_bar_panel, text="This is where the classes go")
+        temp_text.pack(anchor=CENTER, pady=400)
+
         return {"menu":side_bar_panel, "container":side_container}# we must edit both the values of the menu and the container for popping in and out
     
     def toggle_side_menu(self):
@@ -88,6 +91,7 @@ class App(ttk.Frame):
     def get_width_percentage(self):
         width = self.root.winfo_screenwidth()
         return 300/width
+
 
 """
 This is the group viewer.
@@ -131,25 +135,33 @@ class GroupTab(ttk.Frame):
         super().__init__(parent)
         self.data = []
 
-        self.create_meter(0.5)
+        self.create_quality_meters()
         self.table = self.create_table()
         label = ttk.Label(self, text = label_text, font=("Helvetica", 18))
         label.pack(expand=True, fill='both', padx=20,pady=20)
         self.pack()
 
+    def create_quality_meters(self):
+        container = ttk.Frame(self)
+        container.pack(side=TOP)
+        meter1 = self.create_meter(container, 0.5, text = "quality 1 percentage")
+        meter2 = self.create_meter(container, 0.5, text = "quality 2 percentage")
+        meter3 = self.create_meter(container, 0.5, text = "quality 3 percentage")
+
     #Create meter
-    def create_meter(self, percentage):
+    def create_meter(self, parent, percentage, text = "group percentage"):
         meter = ttk.Meter(
-            master = self,
+            master = parent,
             metersize=150,
-            padding=5,
+            padding=10,
             amounttotal=100,
             amountused = percentage * 100,# INSERT PERCENTAGE HERE (multiply by 100 if like 0.25 etc)
             metertype=FULL,
-            subtext="Collaborative Percentage",
+            subtext=text,
             interactive= True
         )
-        meter.pack()
+        meter.pack(side=LEFT)
+        return meter
     
     def create_table(self):
         headers = [
@@ -167,7 +179,7 @@ class GroupTab(ttk.Frame):
             stripecolor=('green', None)
         )
 
-        table.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        table.pack(fill=BOTH, expand=YES, padx=10, pady=10, side=BOTTOM)
         return table
 
 class NewGroupTab(ttk.Frame):

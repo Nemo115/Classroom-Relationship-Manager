@@ -36,7 +36,7 @@ student_database = [{'ID': '0', 'Name': 'John Doe', 'Ratings': {'1': {'rating': 
 """
 #Get all groups
 with open("student_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r') as f:
-    student_groups = json.load(f)['groups']
+    student_groups = json.load(f)
     print(student_groups)
 
 current_groups = [] # every group the student is in
@@ -66,23 +66,22 @@ def get_student(student_id):
     return student_database[student_id]
 
 def get_group(group_id):
-    for group in student_groups:
-        if group['GroupID'] == group_id:
-            return group
+    return student_groups[group_id]
 
 def find_group_members(current_peers, current_groups, current_group_qualities):
     #Find the group the student is in
     for group in student_groups:
-        if student_data['ID'] in group['Members']:
-            current_groups.append(group['GroupID'])
-            current_group_qualities.append((group['GroupID'], group['GroupQualities']))
-            for member in group['Members']:#add each member to the group list except for self
+        current_group = student_groups[group]
+        if student_data['ID'] in current_group['Members']:
+            current_groups.append(current_group['GroupID'])
+            current_group_qualities.append((current_group['GroupID'], current_group['GroupQualities']))
+            for member in current_group['Members']:#add each member to the group list except for self
                 if member != student_data['ID']:
-                    current_peers.append((group['GroupID'], member))
+                    current_peers.append((current_group['GroupID'], member))
     
-def group_qualities(group):
+#def group_qualities(group):
     #group is the indexed group
-    return student_groups[group]['GroupQualities']
+    #return student_groups[group]['GroupQualities']
 
 
 """

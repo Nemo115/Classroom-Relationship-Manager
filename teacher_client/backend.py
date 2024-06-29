@@ -26,5 +26,32 @@ student_database = [{'ID': '0', 'Name': 'John Doe', 'Ratings': {'1': {'rating': 
 """
 #Get all groups
 with open("teacher_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r') as f:
-    student_groups = json.load(f)['groups']
+    student_groups = json.load(f)
     print(student_groups)
+
+
+"""
+List: a list of classes (list of dictionaries) from classes.json
+"""
+
+"""
+Function:
+    - Return average quality score by adding all elements of a quality list and divide by list length
+    - Parameters:
+        - Student ID, 
+"""
+
+
+"""
+List: A list of students (list of dictionaries) containing Name, Average score for each quality
+"""
+
+"""
+Function:
+    - Returns total quality percentage out of group
+    - Parameters:
+        - Group ID
+        - Quality
+"""
+
+
