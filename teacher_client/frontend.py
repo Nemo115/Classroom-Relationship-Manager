@@ -61,10 +61,9 @@ class App(ttk.Frame):
         return side_bar_panel
     
     def insert_classes(self):
-        for i in range(0,3): #for class in classes list
-            ClassTab(self.navigation_bar, main_view=self.main_view)
+        for _class in classes_list: #for class in classes list
+            ClassTab(self.navigation_bar, main_view=self.main_view, class_data=_class)
         
-
     def toggle_side_menu(self):
         self.side_menu_active = not self.side_menu_active
         if self.side_menu_active:
@@ -97,7 +96,7 @@ class App(ttk.Frame):
         return 300/width
 
 class ClassTab(ttk.Frame):
-    def __init__(self, parent, main_view, class_data = {'ID':'1', 'ClassName':'Math Class', 'Teacher':'James Harding', 'Groups':['0','1']}): # Currently put sample data in the class tab for testing
+    def __init__(self, parent, main_view, class_data): # Currently put sample data in the class tab for testing
         super().__init__(parent)
         self.pack(fill=X, pady=10, side=TOP)
 
@@ -129,11 +128,14 @@ class GroupViewer(ttk.Frame):
         #self.place(relx=0.2, rely=0.2, relwidth=.8, relheight=1)
         self.pack(fill=BOTH, expand=YES)
 
+        self.class_data = None
+
         self.create_notebook()
-        self.create_tabs()
-        
+        self.create_tabs(classes_list[0])
     
-    def create_tabs(self, class_data= {'ID':'1', 'ClassName':'Math Class', 'Teacher':'James Harding', 'Groups':['0','1']}):
+    def create_tabs(self, class_data):
+        self.class_data = class_data
+
         #RESET all tabs by deleting current ones
         for tab in self.notebook.master.winfo_children()[1:]:
             tab.destroy()
@@ -155,10 +157,11 @@ class GroupViewer(ttk.Frame):
         self.notebook.add(tab, text=group['GroupName'])
 
     def create_new_group_tab(self):
-        new_group_tab = NewGroupTab(self)
-        self.notebook.add(new_group_tab, text="Create New Group")
-
+        new_group_tab = NewGroupTab(self, self.class_data['ID'])
+        self.notebook.add(new_group_tab, text=" + ")
     
+    def refresh_groups(self):
+        self.create_tabs(self.class_data)
 
 """
 This is the pages displayed for each tab in the group viewer.
@@ -169,7 +172,7 @@ Should include:
 class GroupTab(ttk.Frame):
     def __init__(self, parent, group):
         super().__init__(parent)
-        self.data = []
+        self.data = row_data(group)
         self.group = group
 
         self.quality_meters = self.create_quality_meters()
@@ -187,9 +190,13 @@ class GroupTab(ttk.Frame):
     def create_quality_meters(self):
         container = ttk.Frame(self)
         container.pack(side=TOP)
-        meter1 = self.create_meter(container, 0.5, text = self.group['GroupQualities'][0])
-        meter2 = self.create_meter(container, 0.5, text = self.group['GroupQualities'][1])
-        meter3 = self.create_meter(container, 0.5, text = self.group['GroupQualities'][2])
+
+        members = self.group['Members']
+        qualities = self.group['GroupQualities']
+
+        meter1 = self.create_meter(container, get_group_quality_average(members, qualities[0]), text = qualities[0])
+        meter2 = self.create_meter(container, get_group_quality_average(members, qualities[1]), text = qualities[1])
+        meter3 = self.create_meter(container, get_group_quality_average(members, qualities[2]), text = qualities[2])
 
         return {self.group['GroupQualities'][0]: meter1, self.group['GroupQualities'][1]: meter2, self.group['GroupQualities'][2]: meter3}
 
@@ -200,19 +207,21 @@ class GroupTab(ttk.Frame):
             metersize=150,
             padding=10,
             amounttotal=100,
-            amountused = percentage * 100,# INSERT PERCENTAGE HERE (multiply by 100 if like 0.25 etc)
+            amountused = percentage,# INSERT PERCENTAGE HERE (multiply by 100 if like 0.25 etc)
             metertype=FULL,
             subtext=text,
-            interactive= True
+            interactive= False
         )
         meter.pack(side=LEFT)
         return meter
     
     def create_table(self):
+        qualities = self.group['GroupQualities']
         headers = [
             {"text": "Name", "stretch": True},
-            {"text": "Student ID", "stretch": True},
-            {"text": "Total Rating", "stretch": True}
+            {"text": qualities[0], "stretch": True},
+            {"text": qualities[1], "stretch": True},
+            {"text": qualities[2], "stretch": True}
         ]
         table = Tableview(
             master=self,
@@ -228,11 +237,14 @@ class GroupTab(ttk.Frame):
         return table
 
 class NewGroupTab(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, class_id):
         super().__init__(parent)
         placeholder = ttk.Label(self, text="Create a new group here", width = 50)
         placeholder.pack(fill=X, pady=10)
         self.pack()
+
+        self.parent = parent
+        self.class_id = class_id
 
         self.group_name = ttk.StringVar()
         self.group_members = []
@@ -343,4 +355,6 @@ class NewGroupTab(ttk.Frame):
             toast.show_toast()
             return
         else:
-            create_group(group_name=group_name, group_members=self.group_members, group_qualities=group_qualities)
+            create_group(group_name=group_name, group_members=self.group_members, group_qualities=group_qualities, class_id=self.class_id)
+            #Refresh Notebook
+            self.parent.refresh_groups()
