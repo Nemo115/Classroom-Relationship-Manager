@@ -8,6 +8,7 @@ from ttkbootstrap.constants import *
 from ttkbootstrap.toast import ToastNotification
 from ttkbootstrap.tableview import Tableview
 from ttkbootstrap.validation import add_regex_validation
+from ttkbootstrap.scrolled import ScrolledFrame
 
 """
 This is the main frame in the window.
@@ -232,3 +233,114 @@ class NewGroupTab(ttk.Frame):
         placeholder = ttk.Label(self, text="Create a new group here", width = 50)
         placeholder.pack(fill=X, pady=10)
         self.pack()
+
+        self.group_name = ttk.StringVar()
+        self.group_members = []
+        self.student_selections = {}#Dictionary of 1's and 0's
+
+        self.first_quality = ttk.StringVar(value="first quality")
+        self.second_quality = ttk.StringVar(value="second quality")
+        self.third_quality = ttk.StringVar(value="third quality")
+        
+        self.create_form_entry("Group Name", self.group_name)
+
+        self.create_quality_select("Select First Quality:",self.first_quality)
+        self.create_quality_select("Select Second Quality:",self.second_quality)
+        self.create_quality_select("Select Third Quality:",self.third_quality)
+
+        self.create_student_list()
+
+        self.create_submit_button()
+    
+    def create_form_entry(self, label, variable):
+        form_field_container = ttk.Frame(self)
+        form_field_container.pack(fill=X, expand=YES, pady=5)
+
+        form_field_label = ttk.Label(master=form_field_container, text = label, width=15)
+        form_field_label.pack(side = LEFT, padx = 12)
+
+        form_input = ttk.Entry(master=form_field_container, textvariable=variable)
+        form_input.pack(side=LEFT, padx=20, fill=X, expand=YES)
+
+        add_regex_validation(form_input, r'^[a-zA-Z0-9_]*$')
+
+        return form_input
+    
+    def create_quality_select(self, label, var):
+        field_container = ttk.Frame(self)
+        field_container.pack(fill=X, expand=YES, pady=5)
+
+        field_label = ttk.Label(master=field_container, text = label, width=15)
+        field_label.pack(side = LEFT, padx = 12)
+
+        menu_select = ttk.Menubutton(master = field_container, bootstyle='outline info', textvariable=var)
+        menu_select.pack(side=RIGHT, fill=X, expand=YES, padx=20)
+
+        inside_menu=ttk.Menu(menu_select)
+        for quality in qualities_options:
+            inside_menu.add_radiobutton(label=quality, 
+                                        variable=var, 
+                                        command=self.update_quality_menus)
+        menu_select['menu'] = inside_menu
+
+    def create_submit_button(self):
+        submit_button = ttk.Button(self, text="Create New Group", bootstyle = 'outline success', command=self.create_new_group)
+        submit_button.pack(padx=50, fill=X, expand=YES, pady=5)
+
+    def create_student_list(self):
+        student_scroll_frame = ScrolledFrame(self, autohide=False, bootstyle='info')
+        student_scroll_frame.pack(pady=15, padx=30, fill=BOTH, expand=YES)
+
+        for student in student_database:
+            current_student = student_database[student]
+
+            container = ttk.Frame(student_scroll_frame)
+            container.pack(fill=X, expand=YES, pady=5)
+
+            label = ttk.Label(master=container, text = current_student['Name'], width=15)
+            label.pack(side = LEFT, padx=12)
+
+            new_var = ttk.IntVar()
+            toggle_button = ttk.Checkbutton(master=container, 
+                                            bootstyle = 'info-round_toggle', 
+                                            variable = new_var, onvalue=1, offvalue=0, 
+                                            command=lambda x = current_student: self.student_selected(x))
+            toggle_button.pack(side=RIGHT, padx=25)
+            
+            self.student_selections[current_student['ID']] = new_var
+
+    def student_selected(self, student):
+        add = self.student_selections[student['ID']].get()
+        if add:
+            self.group_members.append(student['ID'])
+        else:
+            self.group_members.remove(student['ID'])
+            
+    def update_quality_menus(self):##Debugging method
+        print(f"\nGroup Name: {self.group_name.get()}\nfirst quality: {self.first_quality.get()}\nsecond quality: {self.second_quality.get()}\nthird quality: {self.third_quality.get()}")
+
+    def create_new_group(self):## on button pressed, pass parameters to create_group() from backend
+        group_name = self.group_name.get()
+        group_qualities = [self.first_quality.get(), self.second_quality.get(), self.third_quality.get()]
+
+        error = ""
+
+        if not group_name:
+            error = "Must input a group name"
+        elif not ((group_qualities[0] or group_qualities[1] or group_qualities[2]) in qualities_options):
+            error = "Must input qualities for each group"
+        elif group_qualities[0] == group_qualities[1] or group_qualities[2] == group_qualities[0] or group_qualities[1] == group_qualities[2]:
+            error = "Must input DIFFERENT qualities for each group"
+        elif self.group_members == []:
+            error = "Must select students"
+
+        if error:
+            toast = ToastNotification(
+                title="Error",
+                message=error,
+                duration = 3000
+            )
+            toast.show_toast()
+            return
+        else:
+            create_group(group_name=group_name, group_members=self.group_members, group_qualities=group_qualities)

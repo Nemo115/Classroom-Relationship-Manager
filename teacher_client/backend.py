@@ -22,7 +22,7 @@ with open("teacher_client/data/StartHack-2024-PROTOTYPE_SERVER/students.json", '
     student_database = json.load(f)
     print(student_database)
 """
-student_database = [{'ID': '0', 'Name': 'John Doe', 'Ratings': {'1': {'rating': 3, 'tags': ['Leader', 'Focused', 'Etc']}, '2': {'rating': 3, 'tags': ['Lazy', 'Distracted', 'Uncooperative']}, '3': {'rating': 5, 'tags': ['Leader', 'Focused', 'Etc']}}}, {'ID': '1', 'Name': 'Robert Redford', 'Ratings': {'0': {'rating': 3, 'tags': ['Leader', 'Focused', 'Etc']}, '2': {'rating': 3, 'tags': ['Lazy', 'Distracted', 'Uncooperative']}, '3': {'rating': 5, 'tags': ['Leader', 'Focused', 'Etc']}}}, {'ID': '2', 'Name': 'Robert Redford', 'Ratings': {'0': {'rating': 3, 'tags': ['SUSSY', 'Focused', 'Etc']}, '1': {'rating': 3, 'tags': ['Lazy', 'Distracted', 'Uncooperative']}, '3': {'rating': 5, 'tags': ['Leader', 'Focused', 'Etc']}}}]
+student_database = {'0': {'ID': '0', 'Name': 'John Doe', 'Ratings': {'Collaboration': [1, 2, 3], 'Ideas': [1, 2, 3], 'Leader': [1, 2, 3], 'Teamwork': [1, 2, 3]}}, '1': {'ID': '1', 'Name': 'Robert Redford', 'Ratings': {'Collaboration': [1, 2, 3, 9, 5, 5, 5, 10], 'Dedication': [8, 5, 5, 5, 10], 'Effort': [5, 9, 5, 5, 5, 5, 5, 5, 5, 10], 'Focus': [8, 5, 5, 5, 8], 'Ideas': [1, 2, 3, 5, 5, 5, 5, 5], 'Leader': [1, 2, 3], 'Teamwork': [1, 2, 3]}}, '2': {'ID': '2', 'Name': 'Paul Newman', 'Ratings': {'Collaboration': [6, 5, 5, 0, 5], 'Dedication': [7, 5, 5, 10, 5], 'Effort': [4, 6, 5, 5, 5, 5, 6, 4, 5, 5], 'Focus': [4, 5, 5, 9, 5], 'Ideas': [1, 2, 3, 3, 5, 5, 7, 5], 'Leader': [1, 2, 3], 'Teamwork': [1, 2, 3]}}, '3': {'ID': '3', 'Name': 'Lucy Kent', 'Ratings': {'Effort': [7, 5, 5, 10, 9], 'Focus': [5, 5, 5, 10, 8], 'Ideas': [1, 2, 3, 6, 5, 5, 9, 8], 'Leader': [1, 2, 3], 'Teamwork': [1, 2, 3]}}, '4': {'ID': '4', 'Name': 'Jonathan Davies', 'Ratings': {'Ideas': [1, 2, 3], 'Leader': [1, 2, 3], 'Teamwork': [1, 2, 3]}}}
 """
 #Get all groups
 with open("teacher_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r') as f:
@@ -60,7 +60,7 @@ def create_group(group_name, group_members, group_qualities):
             "GroupQualities":group_qualities
         }
     #adding new group to groups list
-    student_groups.append(new_group)
+    student_groups[str(new_group_id)] = new_group
 
 """
 Function:
