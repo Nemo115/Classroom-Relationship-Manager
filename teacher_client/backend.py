@@ -29,49 +29,6 @@ with open("teacher_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r'
     student_groups = json.load(f)
     print(student_groups)
 
-
-"""
-Function:
-    - Return Group dictionary from group id
-    - Parameters:
-        - Group ID
-"""
-def get_group(id):
-    return student_groups[id]
-
-
-"""
-List: a list of classes (list of dictionaries) from classes.json
-"""
-
-"""
-Function:
-    - Return average quality score by adding all elements of a quality list and divide by list length
-    - Parameters:
-        - Student ID, 
-"""
-
-"""
-Function: Group Quality Average
-    - Return the average total quality score of the group. Only one quality score is returned, not all three
-    - Parameters:
-        - list of student id's 
-        - quality
-"""
-
-"""
-List: A list of students (list of dictionaries) containing Name, Average score for each quality
-"""
-
-"""
-Function:
-    - Returns total quality percentage out of group
-    - Parameters:
-        - Group ID
-        - Quality
-"""
-
-
 #Define Variables
 current_group = [] # group being worked on
 current_group_qualities = [] # qualitites of group being worked on
@@ -81,21 +38,6 @@ qualities_options = ["Teamwork", "Leadership", "Focus", "Cooperation", "Communic
                      "Constructive Feedback", "Resilience", "Research Skills", "Self Awareness", 
                      "Project Management", "Presentation Skills", "Resource Management", "Perseverance", 
                      "Listening Skills", "Accountability", "Technological Skills", "Effort", "Ideas"]
-
-    #Are we doing a login page for the teachers?
-
-# def valid_teacher_id(teacher_id):
-#     if not teacher_id:
-#         return (False, "Must input a Teacher ID")
-#     #run id through the database of all teachers and check if it exists?
-    
-#     for teacher in teacher_database:
-#         if teacher['ID'] == teacher_id:
-#             #logged_in = True
-#             return (True, "Success: You are now Logged In!")
-    
-#     #Teacher id not found
-#     return (False, "Error: Teacher ID not found")
 
 def create_group(group_name, group_members, group_qualities):
     #finding new group ID
@@ -119,3 +61,77 @@ def create_group(group_name, group_members, group_qualities):
         }
     #adding new group to groups list
     student_groups.append(new_group)
+
+"""
+Function:
+    - Return Group dictionary from group id
+    - Parameters:
+        - Group ID
+"""
+def get_group(id):
+    return student_groups[id]
+
+
+"""
+List: a list of classes (list of dictionaries) from classes.json
+"""
+classes_list = []
+with open("teacher_client/data/StartHack-2024-PROTOTYPE_SERVER/classes.json", 'r') as f:
+    loaded_classes = json.load(f)
+    for key in loaded_classes:
+        classes_list.append(loaded_classes[key])
+print(classes_list)
+
+
+"""
+Function: Group Quality Average
+    - Return the average total quality score of the group. Only one quality score is returned, not all three
+    - Parameters:
+        - list of student id's 
+        - quality
+"""
+def get_group_quality_average(student_ids_list, quality):
+    total_quality_value = 0
+    for next_student in student_ids_list:
+        student_quality_value = float(0)
+        #getting individual student quality value
+        for rating in student_database[next_student]["Ratings"][quality]:
+            student_quality_value += int(rating)
+        student_quality_value = (student_quality_value * 10) / len(student_database[next_student]["Ratings"][quality])
+        #adding student quality value to total
+        total_quality_value += student_quality_value
+        #dividing by number of students
+    total_quality_value = total_quality_value / len(student_ids_list)
+    
+    return total_quality_value
+print(get_group_quality_average(["1","2"],"Effort"))
+
+
+"""
+List: A list of students (list of dictionaries) containing Name, Average score for each quality
+"""
+students_quality_averages = []
+for student in student_database:
+    #making individual dictinary each
+    student_averages = {}
+    student_averages["Name"] = student_database[student]["Name"]
+    #adding quality average keys
+    for quality in student_database[student]["Ratings"]:
+        current_quality_total = 0
+        #finding quality average
+        for next_rating in student_database[student]["Ratings"][quality]:
+            current_quality_total += next_rating
+        student_averages[quality] = (current_quality_total * 10) / len(student_database[student]["Ratings"][quality])
+    students_quality_averages.append(student_averages)
+print(students_quality_averages)
+    
+
+
+"""
+Function:
+    - Returns total quality percentage out of group
+    - Parameters:
+        - Group ID
+        - Quality
+"""
+
