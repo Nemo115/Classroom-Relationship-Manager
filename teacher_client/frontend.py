@@ -358,3 +358,9 @@ class NewGroupTab(ttk.Frame):
             create_group(group_name=group_name, group_members=self.group_members, group_qualities=group_qualities, class_id=self.class_id)
             #Refresh Notebook
             self.parent.refresh_groups()
+            toast = ToastNotification(
+                title="Success",
+                message=f"You have successfully added new group {group_name}",
+                duration = 3000
+            )
+            toast.show_toast()
