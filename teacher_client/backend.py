@@ -72,3 +72,50 @@ Function:
 """
 
 
+#Define Variables
+current_group = [] # group being worked on
+current_group_qualities = [] # qualitites of group being worked on
+qualities_options = ["Teamwork", "Leadership", "Focus", "Cooperation", "Communication", 
+                     "Humility", "Reliability", "Organisation", "Problem Solving", "Initiative", 
+                     "Motivation", "Time Management", "Respect", "Decision Making", "Creativity", 
+                     "Constructive Feedback", "Resilience", "Research Skills", "Self Awareness", 
+                     "Project Management", "Presentation Skills", "Resource Management", "Perseverance", 
+                     "Listening Skills", "Accountability", "Technological Skills", "Effort", "Ideas"]
+
+    #Are we doing a login page for the teachers?
+
+# def valid_teacher_id(teacher_id):
+#     if not teacher_id:
+#         return (False, "Must input a Teacher ID")
+#     #run id through the database of all teachers and check if it exists?
+    
+#     for teacher in teacher_database:
+#         if teacher['ID'] == teacher_id:
+#             #logged_in = True
+#             return (True, "Success: You are now Logged In!")
+    
+#     #Teacher id not found
+#     return (False, "Error: Teacher ID not found")
+
+def create_group(group_name, group_members, group_qualities):
+    #finding new group ID
+    new_group_id = 0
+    for group in student_groups:
+        new_group_id += 1
+    #making sure members list input is valid
+    if type(group_members) != list: return (False, "group members must be a list")
+    for member in group_members:
+        if type(member) != str: return (False, "group members must be string type IDs")
+    #making sure group qualities input is valid
+    if type(group_qualities) != list: return (False, "group qualities must be a list")
+    for quality in group_qualities:
+        if quality not in qualities_options: return (False, ("group quality: " + quality + "not valid"))
+    #making new group
+    new_group = {
+            "GroupID": new_group_id,
+            "GroupName": group_name,
+            "Members": group_members,
+            "GroupQualities":group_qualities
+        }
+    #adding new group to groups list
+    student_groups.append(new_group)
