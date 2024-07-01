@@ -31,6 +31,16 @@ with open("teacher_client/data/StartHack-2024-PROTOTYPE_SERVER/groups.json", 'r'
 
 
 """
+Function:
+    - Return Group dictionary from group id
+    - Parameters:
+        - Group ID
+"""
+def get_group(id):
+    return student_groups[id]
+
+
+"""
 List: a list of classes (list of dictionaries) from classes.json
 """
 
@@ -41,6 +51,13 @@ Function:
         - Student ID, 
 """
 
+"""
+Function: Group Quality Average
+    - Return the average total quality score of the group. Only one quality score is returned, not all three
+    - Parameters:
+        - list of student id's 
+        - quality
+"""
 
 """
 List: A list of students (list of dictionaries) containing Name, Average score for each quality
