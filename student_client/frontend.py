@@ -34,18 +34,18 @@ class LoginScreen(ttk.Frame):
     def __init__(self, parent, root):
         super().__init__(parent)
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
-        self.pack(fill=BOTH)
+        self.pack(fill=BOTH, anchor=CENTER)
 
         self.student_id = ttk.StringVar(value="")
         self.parent = parent
         self.root = root
 
-        #default_label = ttk.Label(self, text="Login Screen", width = 50)
-        #default_label.pack(fill=X, pady=10)
+        default_label = ttk.Label(self, text="Please Enter Your Student ID", width = 50)
+        default_label.pack(fill=X, pady=20, anchor=CENTER, padx=20)
 
         #Put an entry box for student id
         id_entry = ttk.Entry(master=self, textvariable=self.student_id, width = 20)
-        id_entry.pack(padx=20, fill=X, expand=YES)
+        id_entry.pack(padx=20, fill=X, expand=YES, anchor=CENTER)
 
         #Submit Button
         submit_btn = ttk.Button(master=self, text="Submit", command=self.submit_id, bootstyle=SUCCESS, width=10)
@@ -114,7 +114,7 @@ class RatingPage(ttk.Frame):
         self.bottom_buttons = self.create_buttons()
     
     def create_current_peer(self):
-        peer_elem = RatePeerElement(self, self.current_peer(), self.current_group(), bootstyle=SECONDARY)
+        peer_elem = RatePeerElement(self, self.current_peer(), self.current_group())
         return peer_elem
 
     def next_peer(self):
@@ -232,6 +232,8 @@ class RatingPage(ttk.Frame):
     
     def submit_ratings(self):
         upload_ratings()
+        self.current_peer_message.set("")
+        self.current_peer_group.set("Finished Ratings")
         toast = ToastNotification(
             title="Ratings Submitted!",
             message="Your ratings have been uploaded!",
@@ -248,7 +250,6 @@ class RatePeerElement(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.place(relx=0.2, rely=0.2, relwidth=0.8, relheight=0.8)
         self.pack(fill=BOTH, anchor=CENTER)
-        self.bootstyle = SECONDARY
         #Need to get these values from backend.current_ratings
         self.first_quality_rating = ttk.IntVar()
         self.second_quality_rating = ttk.IntVar()
@@ -284,10 +285,10 @@ class RatePeerElement(ttk.Frame):
         self.third_quality_rating.set(current_ratings[self.group['GroupID']][self.id][self.qualities[2]])
 
     def create_quality_rating_form(self, quality, rating_var):
-        container = ttk.Frame(self, bootstyle=SECONDARY)
+        container = ttk.Frame(self)
         container.pack(fill=X, expand=YES, pady=20)
 
-        label = ttk.Label(master=container, text=quality, width=15, bootstyle='inverse-secondary')
+        label = ttk.Label(master=container, text=quality, width=15)
         label.pack(side=LEFT, padx = 12)
 
         slider = ttk.Scale(master=container, from_= 0, to=10, variable=rating_var)

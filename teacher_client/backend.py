@@ -75,6 +75,8 @@ def find_quality_averages():
 find_quality_averages()
 print(students_quality_averages_list)
 
+def get_latest_group_in_class(class_id):
+    return len(loaded_classes[class_id]['Groups']) - 1
 
 def add_group_to_class(class_id, group_id):
     loaded_classes[class_id]['Groups'].append(group_id)
@@ -174,11 +176,12 @@ def row_data(group):
     rows = []
     for student in group['Members']:
         name = students_quality_averages_dict[student]['Name']
+        id = student
         first_quality_avg = round(students_quality_averages_dict[student][qualities[0]], 1)
         second_quality_avg = round(students_quality_averages_dict[student][qualities[1]], 1)
         third_quality_avg = round(students_quality_averages_dict[student][qualities[2]], 1)
         
-        new_row = (name, first_quality_avg, second_quality_avg, third_quality_avg)#(name, 1st quality, 2nd quality, 3rd quality)
+        new_row = (id, name, first_quality_avg, second_quality_avg, third_quality_avg)#(id, name, 1st quality, 2nd quality, 3rd quality)
         rows.append(new_row)
     
     return rows

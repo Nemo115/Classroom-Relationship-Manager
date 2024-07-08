@@ -35,7 +35,7 @@ class App(ttk.Frame):
     def create_main_view(self):
         container = ttk.Frame(self, padding=(20,0))
         container.place(x=self.main_view_x, y=60, relwidth=1-self.get_width_percentage()-.1)#PUT THE CALCULATED WIDTH PERCENTAGE
-        group_view = GroupViewer(container)
+        group_view = GroupViewer(container, root=self.root)
         #group_view.set_class_data()## Insert the first class from backend
 
         return {'container':container, 'group_view':group_view}
@@ -123,11 +123,12 @@ Includes:
     - Notebook (tabs and pages)
 """
 class GroupViewer(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, root):
         super().__init__(parent)
         #self.place(relx=0.2, rely=0.2, relwidth=.8, relheight=1)
         self.pack(fill=BOTH, expand=YES)
 
+        self.root = root
         self.class_data = None
 
         self.create_notebook()
@@ -151,9 +152,10 @@ class GroupViewer(ttk.Frame):
     def create_notebook(self):
         self.notebook = ttk.Notebook(self, bootstyle = "dark")
         self.notebook.pack(pady=20, padx=10, fill=BOTH)
+        self.notebook.bind('<<NotebookTabChanged>>', self.tab_transition_anim)
     
     def add_notebook_tab(self, group):
-        tab = GroupTab(self, group = group)#pass in group parameter from backend function. Containing the entire dict for the group
+        tab = GroupTab(self, group = group, root = self.root)#pass in group parameter from backend function. Containing the entire dict for the group
         self.notebook.add(tab, text=group['GroupName'])
 
     def create_new_group_tab(self):
@@ -162,6 +164,11 @@ class GroupViewer(ttk.Frame):
     
     def refresh_groups(self):
         self.create_tabs(self.class_data)
+        self.notebook.select(get_latest_group_in_class(self.class_data['ID']))
+    
+    def tab_transition_anim(self, *args):##Supposed to play meter enter animation
+        print("Changed Tabs")
+        #list(self.notebook.master.children.values())[self.notebook.index('current')+1].meters_enter_animation()
 
 """
 This is the pages displayed for each tab in the group viewer.
@@ -170,22 +177,48 @@ Should include:
     - List of students in the current group and the corresponding data.
 """
 class GroupTab(ttk.Frame):
-    def __init__(self, parent, group):
+    def __init__(self, parent, group, root):
         super().__init__(parent)
         self.data = row_data(group)
         self.group = group
+        self.qualities = group['GroupQualities']
+        self.root = root
+
+        self.current_totals = {self.qualities[0]:0, self.qualities[1]:0, self.qualities[2]:0}
+        self.quality_vars()
 
         self.quality_meters = self.create_quality_meters()
         self.table = self.create_table()
         label = ttk.Label(self, text = group['GroupName'], font=("Helvetica", 18))
         label.pack(expand=True, fill='both', padx=20,pady=20)
         self.pack()
+    
+    def quality_vars(self):
+        qualities = self.group['GroupQualities']
+        members = self.group['Members']
+        self.totals = {qualities[0]:get_group_quality_average(members, qualities[0]), qualities[1]:get_group_quality_average(members, qualities[1]), qualities[2]:get_group_quality_average(members, qualities[2])}
 
-    def meter_enter_animation(self):
-        # Animate the Meters when loaded and when new tab is clicked
-        for meter in self.quality_meters:
-            self.quality_meters[meter]
-        pass
+
+    def meters_enter_animation(self):##Work on this logic
+        # Animate the Meters when loaded and when new tab is clicked        
+        for i in range(0,3):
+            if self.current_totals[self.qualities[i]] < self.totals[self.qualities[i]]:
+                self.current_totals[self.qualities[i]] += 1
+        for i in range(0,3):
+            if self.current_totals[self.qualities[i]] <= self.totals[self.qualities[i]]:
+                list(self.quality_meters.values())[i].configure(amountused = self.current_totals[self.qualities[i]])
+                self.root.after(1, self.meters_enter_animation)
+
+    """
+    def side_bar_enter(self):
+        self.side_menu_x += 20
+        self.main_view_x += 20
+        if self.side_menu_x <= 0 and self.main_view_x <= 300:
+            self.navigation_bar.place(x=self.side_menu_x)
+            self.main_view['container'].place(x=self.main_view_x)
+            self.root.after(10, self.side_bar_enter)
+    """
+
 
     def create_quality_meters(self):
         container = ttk.Frame(self)
@@ -194,11 +227,11 @@ class GroupTab(ttk.Frame):
         members = self.group['Members']
         qualities = self.group['GroupQualities']
 
-        meter1 = self.create_meter(container, get_group_quality_average(members, qualities[0]), text = qualities[0])
-        meter2 = self.create_meter(container, get_group_quality_average(members, qualities[1]), text = qualities[1])
-        meter3 = self.create_meter(container, get_group_quality_average(members, qualities[2]), text = qualities[2])
+        meter1 = self.create_meter(container, self.totals[qualities[0]], text = qualities[0])#get_group_quality_average(members, qualities[0])
+        meter2 = self.create_meter(container, self.totals[qualities[1]], text = qualities[1])#get_group_quality_average(members, qualities[1])
+        meter3 = self.create_meter(container, self.totals[qualities[2]], text = qualities[2])#get_group_quality_average(members, qualities[2])
 
-        return {self.group['GroupQualities'][0]: meter1, self.group['GroupQualities'][1]: meter2, self.group['GroupQualities'][2]: meter3}
+        return {qualities[0]: meter1, qualities[1]: meter2, qualities[2]: meter3}
 
     #Create meter
     def create_meter(self, parent, percentage, text = "group percentage"):
@@ -207,7 +240,7 @@ class GroupTab(ttk.Frame):
             metersize=150,
             padding=10,
             amounttotal=100,
-            amountused = percentage,# INSERT PERCENTAGE HERE (multiply by 100 if like 0.25 etc)
+            amountused = percentage,
             metertype=FULL,
             subtext=text,
             interactive= False
@@ -218,6 +251,7 @@ class GroupTab(ttk.Frame):
     def create_table(self):
         qualities = self.group['GroupQualities']
         headers = [
+            {"text": "ID", "stretch":False, "width":40},
             {"text": "Name", "stretch": True},
             {"text": qualities[0], "stretch": True},
             {"text": qualities[1], "stretch": True},
@@ -230,11 +264,23 @@ class GroupTab(ttk.Frame):
             paginated=True,
             searchable=True,#Searchbar
             bootstyle=PRIMARY,
-            stripecolor=('green', None)
+            stripecolor=('grey', None)
         )
 
         table.pack(fill=BOTH, expand=YES, padx=10, pady=10, side=BOTTOM)
+        table.view.bind("<Double-1>", self.row_selected)
+
         return table
+    
+    def row_selected(self, event) -> None:
+        selected = self.table.view.selection()
+        record = self.table.iidmap.get(selected[0]).values
+        print(f"selected: {record}")
+
+class ViewStudent(ttk.Toplevel):
+    def __init__(self, id):
+        pass
+
 
 class NewGroupTab(ttk.Frame):
     def __init__(self, parent, class_id):
@@ -300,7 +346,7 @@ class NewGroupTab(ttk.Frame):
         submit_button.pack(padx=50, fill=X, expand=YES, pady=5)
 
     def create_student_list(self):
-        student_scroll_frame = ScrolledFrame(self, autohide=False, bootstyle='info')
+        student_scroll_frame = ScrolledFrame(self, autohide=False, bootstyle='primary')
         student_scroll_frame.pack(pady=15, padx=30, fill=BOTH, expand=YES)
 
         for student in student_database:
@@ -339,7 +385,7 @@ class NewGroupTab(ttk.Frame):
 
         if not group_name:
             error = "Must input a group name"
-        elif not ((group_qualities[0] or group_qualities[1] or group_qualities[2]) in qualities_options):
+        elif ((group_qualities[0] in qualities_options) and (group_qualities[1] in qualities_options) and (group_qualities[2] in qualities_options)) == False:
             error = "Must input qualities for each group"
         elif group_qualities[0] == group_qualities[1] or group_qualities[2] == group_qualities[0] or group_qualities[1] == group_qualities[2]:
             error = "Must input DIFFERENT qualities for each group"
