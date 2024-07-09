@@ -60,7 +60,10 @@ def copy_student(student_id):
         student_data.update(student_database[student_id])
     #pass values to student_data from student_id
     with open('student_client/data/student_data.json', 'w') as f:
-        json.dump(student_data, f)
+        f.write(
+            json.dumps(student_data, indent=4, sort_keys=True)
+        )
+        #json.dump(student_data, f)
 
 def get_student(student_id):
     return student_database[student_id]

@@ -209,17 +209,6 @@ class GroupTab(ttk.Frame):
                 list(self.quality_meters.values())[i].configure(amountused = self.current_totals[self.qualities[i]])
                 self.root.after(1, self.meters_enter_animation)
 
-    """
-    def side_bar_enter(self):
-        self.side_menu_x += 20
-        self.main_view_x += 20
-        if self.side_menu_x <= 0 and self.main_view_x <= 300:
-            self.navigation_bar.place(x=self.side_menu_x)
-            self.main_view['container'].place(x=self.main_view_x)
-            self.root.after(10, self.side_bar_enter)
-    """
-
-
     def create_quality_meters(self):
         container = ttk.Frame(self)
         container.pack(side=TOP)
@@ -275,11 +264,49 @@ class GroupTab(ttk.Frame):
     def row_selected(self, event) -> None:
         selected = self.table.view.selection()
         record = self.table.iidmap.get(selected[0]).values
+        ViewStudent(record[0])
         print(f"selected: {record}")
+        
 
 class ViewStudent(ttk.Toplevel):
     def __init__(self, id):
-        pass
+        super().__init__()
+        self.geometry('1000x1000')
+        self.id = id
+        self.data = get_student_ratings(id)
+        self.name = self.data['Name']
+        self.qualities = [(quality, self.data[quality]) for quality in self.data][1:]
+
+        print(self.data)
+        
+        student_name = ttk.Label(self, text=self.name, font=("", 25))
+        student_name.pack(anchor=CENTER, pady=10, padx=10)
+
+        self.scroll = self.create_list()
+
+    def create_list(self):
+        student_scroll_frame = ScrolledFrame(self, autohide=False, bootstyle='primary')
+        student_scroll_frame.pack(pady=15, padx=30, fill=BOTH, expand=YES)
+
+        for quality in self.qualities:
+            self.create_elem(student_scroll_frame, quality)
+
+        return student_scroll_frame
+    
+    def create_elem(self, scroll_frame, quality):
+        container = ttk.Frame(scroll_frame)
+        container.pack(fill=X, expand=YES, pady=5)
+        meter = ttk.Meter(
+            master = container,
+            metersize=150,
+            padding=10,
+            amounttotal=100,
+            amountused = round(quality[1], 2),
+            metertype=FULL,
+            subtext=quality[0],
+            interactive= False
+        )
+        meter.pack(anchor=CENTER)
 
 
 class NewGroupTab(ttk.Frame):

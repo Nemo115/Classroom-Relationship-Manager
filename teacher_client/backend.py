@@ -73,7 +73,7 @@ def find_quality_averages():
         students_quality_averages_list.append(student_averages)
         students_quality_averages_dict[student] = student_averages
 find_quality_averages()
-print(students_quality_averages_list)
+print(f"\n{students_quality_averages_dict}\n")
 
 def get_latest_group_in_class(class_id):
     return len(loaded_classes[class_id]['Groups']) - 1
@@ -185,3 +185,6 @@ def row_data(group):
         rows.append(new_row)
     
     return rows
+
+def get_student_ratings(id):
+    return students_quality_averages_dict[id]

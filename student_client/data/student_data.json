@@ -1,1 +1,71 @@
-{"ID": "12", "Name": "Gordon Ryan", "Ratings": {"Collaboration": [], "Dedication": [], "Effort": [], "Focus": [8, 5, 5], "Humility": [8, 5, 5], "Ideas": [], "Initiative": [], "Leader": [1], "Leadership": [8, 5, 5], "Motivation": [], "Perseverance": [10, 5, 5], "Presentation Skills": [], "Reliability": [], "Resilience": [], "Respect": [9, 5, 5], "Teamwork": [1, 2, 3, 10, 5, 5], "Time Management": []}}
+{
+    "ID": "10",
+    "Name": "John Woo",
+    "Ratings": {
+        "Collaboration": [],
+        "Communication": [],
+        "Cooperation": [],
+        "Dedication": [],
+        "Effort": [],
+        "Focus": [
+            10
+        ],
+        "Humility": [
+            8,
+            8
+        ],
+        "Ideas": [],
+        "Initiative": [],
+        "Leader": [
+            1,
+            2,
+            3
+        ],
+        "Leadership": [
+            10
+        ],
+        "Listening Skills": [
+            9
+        ],
+        "Motivation": [
+            5,
+            5,
+            5,
+            0,
+            10
+        ],
+        "Perseverance": [
+            10,
+            10
+        ],
+        "Presentation Skills": [
+            5,
+            5
+        ],
+        "Problem Solving": [],
+        "Reliability": [],
+        "Resilience": [
+            5,
+            5
+        ],
+        "Respect": [
+            9,
+            10
+        ],
+        "Self Awareness": [
+            10
+        ],
+        "Teamwork": [
+            1,
+            2,
+            3,
+            10
+        ],
+        "Time Management": [
+            5,
+            5,
+            5,
+            0
+        ]
+    }
+}
