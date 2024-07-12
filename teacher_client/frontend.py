@@ -47,7 +47,7 @@ class App(ttk.Frame):
                 master = top_container,
                 text="Classes Menu",
                 command = self.toggle_side_menu,
-                bootstyle=INFO,
+                bootstyle='primary',
                 width=15
             )
         toggle_button.pack(side=LEFT, padx=5, pady=10)
@@ -109,7 +109,7 @@ class ClassTab(ttk.Frame):
     def create_button(self):
         button = ttk.Button(self, 
                             text = self.class_data['ClassName'], 
-                            command=self.view_class)
+                            command=self.view_class, bootstyle = 'primary')
         button.pack(fill=X)
 
     def view_class(self):
@@ -150,7 +150,7 @@ class GroupViewer(ttk.Frame):
         self.create_new_group_tab()
         
     def create_notebook(self):
-        self.notebook = ttk.Notebook(self, bootstyle = "dark")
+        self.notebook = ttk.Notebook(self, bootstyle = "secondary")
         self.notebook.pack(pady=20, padx=10, fill=BOTH)
         self.notebook.bind('<<NotebookTabChanged>>', self.tab_transition_anim)
     
@@ -189,7 +189,7 @@ class GroupTab(ttk.Frame):
 
         self.quality_meters = self.create_quality_meters()
         self.table = self.create_table()
-        label = ttk.Label(self, text = group['GroupName'], font=("Helvetica", 18))
+        label = ttk.Label(self, text = group['GroupName'], font=("FormaDjr", 18))
         label.pack(expand=True, fill='both', padx=20,pady=20)
         self.pack()
     
@@ -232,7 +232,8 @@ class GroupTab(ttk.Frame):
             amountused = percentage,
             metertype=FULL,
             subtext=text,
-            interactive= False
+            interactive= False,
+            bootstyle='primary'
         )
         meter.pack(side=LEFT)
         return meter
@@ -252,8 +253,8 @@ class GroupTab(ttk.Frame):
             rowdata= self.data,
             paginated=True,
             searchable=True,#Searchbar
-            bootstyle=PRIMARY,
-            stripecolor=('grey', None)
+            stripecolor=('grey', None),
+            bootstyle='primary'
         )
 
         table.pack(fill=BOTH, expand=YES, padx=10, pady=10, side=BOTTOM)
@@ -304,7 +305,8 @@ class ViewStudent(ttk.Toplevel):
             amountused = round(quality[1], 2),
             metertype=FULL,
             subtext=quality[0],
-            interactive= False
+            interactive= False,
+            bootstyle='primary'
         )
         meter.pack(anchor=CENTER)
 
